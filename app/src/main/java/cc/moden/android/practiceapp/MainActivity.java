@@ -1,19 +1,18 @@
 package cc.moden.android.practiceapp;
 
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.View;
 import android.view.MenuItem;
-import android.widget.Button;
-import android.widget.Toast;
+import android.widget.TextView;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-    private final String TAG = "DemoButtonApp";
+
+    public static final String SHAREDPREF_SET = "da App Times";
+    public static final String SHAREDPREF_ITEM_START_TIME = "StartTime";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,38 +21,42 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        setupMessageButtion();
+        displayCurrentTime();
+        displayLastStartTime();
 
-
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        storeStartTimeToSharedPreferences();
     }
 
-    private void setupMessageButtion() {
-        //1. Get reference to the button
-        Button messageButton = (Button) findViewById(R.id.btnDisplayMessage);
+    private void displayCurrentTime() {
+        Date currentTime = new Date();
+        String text = "The current time is: " + currentTime.toString();
 
-        //2. Set click listener to run code
-        messageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.i(TAG, "You clicked the button!");
-                Toast.makeText(
-                        MainActivity.this,
-                        "You Clicked it, Again!",
-                        Toast.LENGTH_LONG
-                ).show();
+        TextView textView = (TextView) findViewById(R.id.txtCurrentTime);
+        textView.setText(text);
+    }
 
+    private void displayLastStartTime() {
+        String lastStartTime = getLastStartTimeFromSharedPreferences();
+        String text = "The last time was: " + lastStartTime;
 
-            }
-        });
+        TextView textView = (TextView) findViewById(R.id.txtLastTime);
+        textView.setText(text);
+    }
+
+    private String getLastStartTimeFromSharedPreferences() {
+        SharedPreferences prefs = getSharedPreferences(SHAREDPREF_SET, MODE_PRIVATE);
+        String extractedText = prefs.getString(SHAREDPREF_ITEM_START_TIME, "no time recorded");
+        return extractedText;
+    }
+
+    private void storeStartTimeToSharedPreferences() {
+        String text = new Date().toString();
+
+        SharedPreferences prefs = getSharedPreferences(SHAREDPREF_SET, MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(SHAREDPREF_ITEM_START_TIME, text);
+        editor.apply();
+
     }
 
     @Override
