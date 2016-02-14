@@ -10,6 +10,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+// Array of options --> ArrayAdapter --> ListView
+
+// List view; {views: da_items.xml}
 
 public class MainActivity extends AppCompatActivity {
 
@@ -18,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        populateListView();
+        registerClickCallback();
     }
 
     private void registerClickCallback() {
