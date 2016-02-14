@@ -1,11 +1,15 @@
 package cc.moden.android.practiceapp;
 
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.widget.ListViewCompat;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -13,31 +17,35 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_main, menu);
-        //super.onCreateOptionsMenu(menu);
-        return true;
+    private void registerClickCallback() {
+        ListView list = (ListView) findViewById(R.id.listViewMain);
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View viewClicked, int position, long id) {
+                TextView textView = (TextView) viewClicked;
+                String message = "You clicked #" + position
+                        + ", which is string: " + textView.getText().toString();
+                Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        super.onOptionsItemSelected(item);
+    private void populateListView() {
+        // Create list of items
+        String[] myItems = {"Blue", "Green", "Purple", "Red"};
 
-        String message = "Title: " + item.getTitle()
-                + ", id=" + item.getItemId();
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        // Build Adapter
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this,               // Context for the activity
+                R.layout.da_item,   // Layout to use (create)
+                myItems);           // Items to be displayed
 
-        switch(item.getItemId()) {
-            case R.id.menu_help:
-                startActivities(new Intent(this, helpScreen.class));
-                break;
-
-            case R.id.menu_settings:
-
-        }
-        return true;
+        // Configure list view
+        ListView list = (ListView) findViewById(R.id.listViewMain);
+        list.setAdapter(adapter);
     }
 }
