@@ -1,46 +1,102 @@
 package cc.moden.android.practiceapp;
 
+import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.TableLayout;
-import android.widget.TableRow;
+import android.view.View;
+import android.widget.TextView;
+
+
+/*
+ * Steps to using the DB
+ * 1. [DONE] Instantiate the DB Adapter
+ * 2. Open the DB
+ * 3. uste get, insert, delete, to change data
+ * 4. [DONE] Close the DB
+*/
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int NUM_ROWS = 2;
-    private static final int NUM_COLS = 3;
+    DBAdapter myDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        populateButtons();
-
+        openDB();
     }
 
-    private void populateButtons() {
-        TableLayout table = (TableLayout) findViewById(R.id.tableForButtons);
+    private void openDB() {
+        myDb = new DBAdapter(this);
+        myDb.open();
+    }
 
-        for (int row = 0; row < NUM_ROWS; row++) {
-            TableRow tableRow = new TableRow(this);
-            tableRow.setLayoutParams(new TableLayout.LayoutParams(
-                    TableLayout.LayoutParams.MATCH_PARENT,
-                    TableLayout.LayoutParams.MATCH_PARENT,
-                    1.0f));
-            table.addView(tableRow);
 
-            for (int col = 0; col <  NUM_COLS; col++) {
-                Button button = new Button(this);
-                button.setLayoutParams(new TableRow.LayoutParams(
-                        TableRow.LayoutParams.MATCH_PARENT,
-                        TableRow.LayoutParams.MATCH_PARENT,
-                        1.0f));
 
-                tableRow.addView(button);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
 
-            }
+        closeDB();
+    }
+
+    private void closeDB() {
+        myDb.close();
+    }
+
+
+
+    private void displayText(String message) {
+        TextView textView = (TextView) findViewById(R.id.textDisplay);
+        textView.setText(message);
+    }
+
+
+
+    public void onClick_AddRecord(View v) {
+        displayText("Clicked add record");
+
+        long newId = myDb.insertRow("Jenny", 93, "green");
+
+        // Query
+        // use ID
+        Cursor cursor = myDb.getRow(newId);
+        displayRecordSet(cursor);
+    }
+
+    public void onClick_ClearAll(View v) {
+        displayText("Clicked clear all");
+        myDb.deleteAll();
+    }
+
+    public void onClick_DisplayRecords(View v) {
+        displayText("Clicked display record");
+
+        Cursor cursor = myDb.getAllRows();
+        displayRecordSet(cursor);
+    }
+
+    private void displayRecordSet(Cursor cursor) {
+        String message = "";
+
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(DBAdapter.COL_ROWID);
+                String name = cursor.getString(DBAdapter.COL_NAME);
+                int studentNumber = cursor.getInt(DBAdapter.COL_STUDENTNUM);
+                String favColour = cursor.getString(DBAdapter.COL_FAVCOLOUR);
+
+                message += "id=" + id
+                        + ", name=" + name
+                        + ", num=" + studentNumber
+                        + ", color=" + favColour
+                        + "\n";
+            } while (cursor.moveToNext());
         }
+        // Close to avoid resouce leak
+        cursor.close();
+
+        displayText(message);
     }
 }
